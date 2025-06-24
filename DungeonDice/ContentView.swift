@@ -32,6 +32,8 @@ struct ContentView: View {
     
     
     @State private var resultMessage = " "
+    @State private var animationTrigger = false   // changed when animation occured
+    @State private var isDoneAnimating = true
     
     
     
@@ -48,7 +50,16 @@ struct ContentView: View {
                 .font(.largeTitle)
                 .fontWeight(.medium)
                 .multilineTextAlignment(.center)
+//                .scaleEffect(isDoneAnimating ? 1.0 : 0.6) // animate to 1.0
+//                .opacity(isDoneAnimating ? 1.0 : 0.2)
+                .rotation3DEffect(isDoneAnimating ? .degrees(360) : .degrees(0), axis: (x: 1, y: 0, z: 0))
                 .frame(height: 150)
+                .onChange(of: animationTrigger) {
+                    isDoneAnimating = false
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.4)) {
+                        isDoneAnimating = true
+                    }
+                }
             
             Spacer()
             
@@ -57,9 +68,8 @@ struct ContentView: View {
                 ForEach(Dice.allCases) { dice in
                     Button(dice.diceName) {
                         resultMessage = "You rolled a \(dice.roll()) on a \(dice.rawValue)-sided dice"
+                        animationTrigger.toggle()
                     }
-                    
-                    
                     .buttonStyle(.borderedProminent)
                     .tint(.red)
                 }
